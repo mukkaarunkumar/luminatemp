@@ -1,0 +1,7 @@
+{
+  "name": "LuminaTemp - Smart Climate Experience",
+  "description": "A luxury climate control interface with illuminate animations, smart AI insights, and a integrated payment system.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

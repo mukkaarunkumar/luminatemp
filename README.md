@@ -16,6 +16,8 @@ Go to backend folder
 2. Run the app:
    `node server.js`
 
+## Preview
+
 
 ![LuminaTemp Off Mode](https://github.com/mukkaarunkumar/luminatemp/blob/main/LuminaTemp-Experience-Climate.png)
 

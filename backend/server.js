@@ -11,27 +11,18 @@ import Order from "./models/Order.js";
 dotenv.config();
 const app = express();
 app.use(express.json());
-// app.use(cors());
 
-// ✅ Enable CORS properly
 app.use(cors({
-  origin: "*", // your React app’s URL
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true, // if you use cookies or authentication
+  credentials: true,
 }));
 
-// ✅ Connect to MongoDB
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
-
-// // 🔥 Initialize Firebase Admin
-// const serviceAccount = JSON.parse(fs.readFileSync("./firebase-services.json", "utf8"));
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
-// const db = admin.firestore();
 
 // 💳 Initialize Razorpay
 const razorpay = new Razorpay({
@@ -50,15 +41,6 @@ app.post("/api/create-order", async (req, res) => {
       currency: "INR",
       receipt: "order_" + crypto.randomBytes(6).toString("hex"),
     });
-
-    // // Save order to Firestore
-    // await db.collection("orders").doc(order.id).set({
-    //   orderId: order.id,
-    //   amount,
-    //   currency: "INR",
-    //   status: "created",
-    //   createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    // });
 
      // Save to MongoDB
     const newOrder = new Order({
@@ -91,31 +73,21 @@ app.post("/api/verify-payment", async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === signature) {
-      // ✅ Valid payment — update Firestore
-    //   await db.collection("orders").doc(orderId).update({
-    //     paymentId,
-    //     signature,
-    //     status: "paid",
-    //     verified: true,
-    //     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    //   });
 
-    const order = await Order.findOne({ orderId });
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-        const isValid = expectedSignature === signature;
-        // Update MongoDB document
-        order.paymentId = paymentId;
-        order.signature = signature;
-        order.verified = isValid;
-        order.status = isValid ? "paid" : "failed";
-        order.updatedAt = new Date();
+      const order = await Order.findOne({ orderId });
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      const isValid = expectedSignature === signature;
+      // Update MongoDB document
+      order.paymentId = paymentId;
+      order.signature = signature;
+      order.verified = isValid;
+      order.status = isValid ? "paid" : "failed";
+      order.updatedAt = new Date();
 
-        await order.save();
-
-
-
+      await order.save();
+      
       res.json({ success: true, message: "Payment verified successfully" });
     } else {
       // ❌ Invalid signature
